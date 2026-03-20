@@ -247,11 +247,10 @@ It is a complete **predictive safety ecosystem** for gig workers.
 
 ---
 
-## 🤝 Support
+## 🎥 Demo & Prototype  
 
-If you like this project:
+🚀 **Live Prototype:**  
+👉 https://gig-guardian-ai.vercel.app/  
 
-⭐ Star this repo  
-🚀 Share it  
-
----
+🎬 **Demo Video:**  
+👉 https://drive.google.com/file/d/1XohS8u3iJnn4pmcwnOuFezVloJBF_1UX/view?usp=sharing  
