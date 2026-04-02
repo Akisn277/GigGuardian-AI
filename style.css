@@ -508,3 +508,104 @@
 
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
   .pulse { animation: pulse 2s infinite; }
+/* ================= MOBILE RESPONSIVENESS ================= */
+
+@media (max-width: 900px) {
+
+  /* LOGIN PAGE STACK */
+  #page-login {
+    flex-direction: column;
+  }
+
+  .login-left {
+    width: 100%;
+    padding: 32px 20px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .login-right {
+    width: 100%;
+    padding: 24px 16px;
+  }
+
+  .login-stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* NAV */
+  nav {
+    padding: 0 12px;
+  }
+
+  .nav-tabs {
+    display: none; /* hide top nav on mobile */
+  }
+
+  /* MAIN LAYOUT */
+  .main-layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .sidebar-item {
+    flex: 1;
+    justify-content: center;
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .sidebar-section-label {
+    display: none;
+  }
+
+  /* CONTENT */
+  .content {
+    padding: 16px;
+  }
+
+  /* METRICS */
+  .metric-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* GRID FIXES */
+  .grid-65-35,
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  /* CARDS */
+  .card {
+    padding: 16px;
+  }
+
+  /* PLAN CARDS */
+  .plan-cards {
+    grid-template-columns: 1fr;
+  }
+
+  /* FORM */
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  /* PRICE TEXT */
+  .price-val {
+    font-size: 36px;
+  }
+
+  /* TABLE SCROLL */
+  .risk-table {
+    display: block;
+    overflow-x: auto;
+  }
+}
