@@ -7,11 +7,24 @@ function toggleLoginTab(i) {
   document.getElementById('register-form').style.display = i===1 ? 'block' : 'none';
 }
 function enterDashboard() {
-  document.getElementById('page-login').style.display = 'none';
-  document.getElementById('page-login').classList.remove('active');
-  document.getElementById('main-nav').style.display = 'flex';
-  document.getElementById('app-shell').style.display = 'block';
-  initCharts();
+  const login = document.getElementById('page-login');
+  const app = document.getElementById('app-shell');
+  const nav = document.getElementById('main-nav');
+
+  // completely remove login page
+  login.style.display = 'none';
+  login.classList.remove('active');
+
+  // force hide (extra safety)
+  login.style.visibility = 'hidden';
+  login.style.position = 'absolute';
+
+  // show app
+  app.style.display = 'block';
+  nav.style.display = 'flex';
+
+  // scroll to top (important for mobile)
+  window.scrollTo(0, 0);
 }
 
 // ---- SECTIONS ----
