@@ -27,6 +27,9 @@ function enterDashboard() {
   const avatar = document.querySelector(".nav-avatar");
   avatar.innerText = localStorage.getItem("user_name")?.charAt(0).toUpperCase() || "U";
 
+  // ensure dashboard content is active and charts load
+  showSection('dashboard');
+
   // show role tooltip/badge
   const role = localStorage.getItem("user_role");
   avatar.title = role || "user";
@@ -354,6 +357,11 @@ function showSection(section) {
     document.getElementById("claimRider").innerText = `${localStorage.getItem("user_name")} (#R-${localStorage.getItem("user_id")})`;
     document.getElementById("claimUPI").innerText = `${localStorage.getItem("user_name").toLowerCase().replace(" ", ".")}@paytm`;
   }
+
+  if (section === 'dashboard') {
+    loadGraph();
+    initCharts();
+  }
 }
 
 function logout() {
@@ -606,6 +614,89 @@ function switchDbTab(el, tab) {
     const el2 = document.getElementById('db-'+t);
     if(el2) el2.style.display = t===tab ? 'block' : 'none';
   });
+}
+
+// ---- MONTHLY STATISTICS ----
+async function loadGraph() {
+  const BASE_URL = 'http://localhost:5000';
+  try {
+    const res = await fetch(`${BASE_URL}/stats/monthly`);
+    const data = await res.json();
+    console.log(data);
+    renderGraph(data);
+  } catch (error) {
+    console.error('Error loading graph data:', error);
+  }
+}
+
+function renderGraph(data) {
+  const labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  
+  // Map month numbers to month labels
+  const premiumData = Array(12).fill(0);
+  const payoutData = Array(12).fill(0);
+  
+  if (data.premiums) {
+    data.premiums.forEach(item => {
+      if (item.month) premiumData[item.month - 1] = item.total || 0;
+    });
+  }
+  
+  if (data.payouts) {
+    data.payouts.forEach(item => {
+      if (item.month) payoutData[item.month - 1] = item.total || 0;
+    });
+  }
+
+  const ctx = document.getElementById("chart");
+  if (ctx) {
+    new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: "Premiums",
+            data: premiumData,
+            borderColor: "rgba(0, 210, 170, 1)",
+            backgroundColor: "rgba(0, 210, 170, 0.1)",
+            fill: true,
+            tension: 0.4
+          },
+          {
+            label: "Payouts",
+            data: payoutData,
+            borderColor: "rgba(77, 158, 255, 1)",
+            backgroundColor: "rgba(77, 158, 255, 0.1)",
+            fill: true,
+            tension: 0.4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            labels: {
+              color: '#6B7A8D',
+              font: { family: 'DM Sans', size: 12 }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { color: '#6B7A8D', font: { family: 'DM Sans', size: 11 } }
+          },
+          y: {
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { color: '#6B7A8D', font: { family: 'DM Sans', size: 11 } }
+          }
+        }
+      }
+    });
+  }
 }
 
 // ---- CHARTS ----
