@@ -254,6 +254,33 @@ def check_fraud():
 def risk():
     return jsonify({"score": 0.78})
 
+# ----------- MONTHLY STATS -----------
+@app.route('/stats/monthly', methods=['GET'])
+def monthly_stats():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+
+    # premiums
+    cursor.execute("""
+        SELECT MONTH(created_at) as month, SUM(premium) as total
+        FROM policies
+        GROUP BY MONTH(created_at)
+    """)
+    premiums = cursor.fetchall()
+
+    # payouts
+    cursor.execute("""
+        SELECT MONTH(created_at) as month, SUM(amount) as total
+        FROM claims
+        GROUP BY MONTH(created_at)
+    """)
+    payouts = cursor.fetchall()
+
+    return jsonify({
+        "premiums": premiums,
+        "payouts": payouts
+    })
+
 @app.route('/')
 def home():
     return send_from_directory('../', 'index.html')
