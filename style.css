@@ -508,6 +508,27 @@
 
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
   .pulse { animation: pulse 2s infinite; }
+
+/* ALERT BOX */
+.alert-box {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #1e293b;
+  color: white;
+  padding: 16px;
+  border-radius: 10px;
+  z-index: 999;
+}
+
+.hidden {
+  display: none;
+}
+
+/* RISK COLORS */
+.risk-high { color: red; }
+.risk-moderate { color: orange; }
+.risk-safe { color: green; }
 /* ================= MOBILE RESPONSIVENESS ================= */
 
 @media (max-width: 900px) {

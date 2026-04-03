@@ -21,21 +21,31 @@
     GigGuardian AI
   </div>
   <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showSection('dashboard')">Dashboard</button>
-    <button class="nav-tab" onclick="showSection('calculator')">Calculator</button>
-    <button class="nav-tab" onclick="showSection('policy')">Policies</button>
-    <button class="nav-tab" onclick="showSection('triggers')">Triggers</button>
-    <button class="nav-tab" onclick="showSection('claims')">Claims</button>
-    <button class="nav-tab" onclick="showSection('database')">Database</button>
+    <button class="nav-tab active" data-section="dashboard" onclick="showSection('dashboard')">Dashboard</button>
+    <button class="nav-tab" data-section="calculator" onclick="showSection('calculator')">Calculator</button>
+    <button class="nav-tab" data-section="policy" onclick="showSection('policy')">Policies</button>
+    <button class="nav-tab" data-section="triggers" onclick="showSection('triggers')">Triggers</button>
+    <button class="nav-tab" data-section="claims" onclick="showSection('claims')">Claims</button>
+    <button class="nav-tab" data-section="database" data-admin onclick="showSection('database')">Database</button>
   </div>
   <div class="nav-right">
+    <div id="welcomeText" style="margin-left:16px; font-weight:500;"></div>
     <div class="nav-bell">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
       <div class="nav-bell-dot"></div>
     </div>
-    <div class="nav-avatar">RJ</div>
-  </div>
+    <div class="nav-avatar">RJ</div>    <button class="btn-logout" onclick="logout()" style="margin-left:12px; padding:6px 10px; background:#ef5f4d; color:#fff; border:none; border-radius:8px; font-size:12px; cursor:pointer;">Logout</button>  </div>
 </nav>
+
+<!-- ALERT BOX -->
+<div id="alertBox" class="alert-box hidden">
+  ⚠️ Heavy rain expected in 30 mins<br>
+  Recommended break: 2 hours
+  <div class="alert-actions">
+    <button onclick="takeBreak()">Take Break</button>
+    <button onclick="continueWork()">Continue</button>
+  </div>
+</div>
 
 <!-- ====== LOGIN PAGE ====== -->
 <div id="page-login" class="page active">
@@ -102,7 +112,7 @@
         <div style="text-align:right;margin-bottom:16px;margin-top:-8px;">
           <span style="font-size:12px;color:var(--teal);cursor:pointer;">Forgot password?</span>
         </div>
-        <button class="btn-primary" onclick="enterDashboard()">Sign In →</button>
+        <button class="btn-primary" onclick="loginUser()">Sign In →</button>
         <div class="login-divider">or continue with</div>
         <button class="btn-google">
           <svg width="16" height="16" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
@@ -110,17 +120,13 @@
         </button>
       </div>
       <div id="register-form" style="display:none;">
-        <div class="form-row">
-          <div><label class="form-label">First Name</label><input class="form-input" placeholder="Rajan" /></div>
-          <div><label class="form-label">Last Name</label><input class="form-input" placeholder="Mehta" /></div>
-        </div>
+        <label class="form-label">Name</label>
+        <input class="form-input" placeholder="Name" />
         <label class="form-label">Work Email</label>
         <input class="form-input" type="email" placeholder="you@insurer.com" />
-        <label class="form-label">Organization</label>
-        <input class="form-input" placeholder="Bajaj Allianz / Acko / ICICI" />
         <label class="form-label">Password</label>
         <input class="form-input" type="password" placeholder="Min 8 characters" />
-        <button class="btn-primary" onclick="enterDashboard()">Create Account →</button>
+        <button class="btn-primary" onclick="registerUser()">Register</button>
       </div>
     </div>
   </div>
@@ -132,30 +138,30 @@
     <!-- SIDEBAR -->
     <aside class="sidebar">
       <div class="sidebar-section-label">Overview</div>
-      <button class="sidebar-item active" onclick="showSection('dashboard')">
+      <button class="sidebar-item active" data-section="dashboard" onclick="showSection('dashboard')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
         Dashboard
       </button>
       <div class="sidebar-section-label">Products</div>
-      <button class="sidebar-item" onclick="showSection('calculator')">
+      <button class="sidebar-item" data-section="calculator" onclick="showSection('calculator')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
         Premium Calc
       </button>
-      <button class="sidebar-item" onclick="showSection('policy')">
+      <button class="sidebar-item" data-section="policy" onclick="showSection('policy')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         Policy Creation
       </button>
-      <button class="sidebar-item" onclick="showSection('triggers')">
+      <button class="sidebar-item" data-section="triggers" onclick="showSection('triggers')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
         Trigger System
         <span class="sidebar-badge">3</span>
       </button>
-      <button class="sidebar-item" onclick="showSection('claims')">
+      <button class="sidebar-item" data-section="claims" onclick="showSection('claims')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Claims & Payouts
       </button>
-      <div class="sidebar-section-label">Data</div>
-      <button class="sidebar-item" onclick="showSection('database')">
+      <div class="sidebar-section-label" data-admin>Data</div>
+      <button class="sidebar-item" data-section="database" data-admin onclick="showSection('database')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
         Database View
       </button>
@@ -179,17 +185,17 @@
         <div class="metric-grid">
           <div class="metric-card teal">
             <div class="metric-label">Active Policies</div>
-            <div class="metric-val teal">14,832</div>
+            <div id="stat1" class="metric-val teal">14,832</div>
             <div class="metric-change up">↑ 8.4% this month</div>
           </div>
           <div class="metric-card red">
             <div class="metric-label">Active Alerts</div>
-            <div class="metric-val red">47</div>
+            <div id="stat2" class="metric-val red">47</div>
             <div class="metric-change down">↑ 12 new today</div>
           </div>
           <div class="metric-card amber">
             <div class="metric-label">Payouts This Week</div>
-            <div class="metric-val amber">₹28.4L</div>
+            <div id="stat3" class="metric-val amber">₹28.4L</div>
             <div class="metric-change up">↑ 3.1% vs last week</div>
           </div>
           <div class="metric-card blue">
@@ -237,44 +243,26 @@
               <span class="card-title">Recent Activity</span>
               <span style="font-size:12px;color:var(--teal);cursor:pointer;">View all</span>
             </div>
-            <div class="feed-item">
-              <div class="feed-dot" style="background:var(--teal)"></div>
-              <div>
-                <div class="feed-text"><strong>Auto-payout triggered</strong> — Rider #R-44821, ₹2,400 for rain event (AQI >200, Mumbai West)</div>
-                <div class="feed-time">2 min ago</div>
-              </div>
-            </div>
-            <div class="feed-item">
-              <div class="feed-dot" style="background:var(--amber)"></div>
-              <div>
-                <div class="feed-text"><strong>Policy renewal alert</strong> — 142 policies expiring in 7 days in Bengaluru cluster</div>
-                <div class="feed-time">18 min ago</div>
-              </div>
-            </div>
-            <div class="feed-item">
-              <div class="feed-dot" style="background:var(--blue)"></div>
-              <div>
-                <div class="feed-text"><strong>New rider onboarded</strong> — Prakash V. (#R-50912) assigned Standard plan, Zone: Chennai South</div>
-                <div class="feed-time">34 min ago</div>
-              </div>
-            </div>
-            <div class="feed-item">
-              <div class="feed-dot" style="background:var(--red)"></div>
-              <div>
-                <div class="feed-text"><strong>Cyclone watch activated</strong> — 3,812 riders in Odisha coast flagged for pre-emptive alert</div>
-                <div class="feed-time">1 hr ago</div>
-              </div>
-            </div>
-            <div class="feed-item">
-              <div class="feed-dot" style="background:var(--teal)"></div>
-              <div>
-                <div class="feed-text"><strong>Claim #C-7721 resolved</strong> — ₹4,800 disbursed to Mohan R. via UPI in 9 min</div>
-                <div class="feed-time">2 hr ago</div>
-              </div>
-            </div>
+            <div id="activityList"></div>
           </div>
 
           <div class="card">
+            <h3>Resilience Score</h3>
+            <p id="resScore">78 / 100</p>
+          </div>
+
+          <div class="card">
+            <h3>Activity Level</h3>
+            <p>High (8 hrs/day)</p>
+            <p>Payout Multiplier: 1.2x</p>
+          </div>
+
+          <div class="card">
+            <h3>AI Risk Score</h3>
+            <p id="riskScore">0.78 (High Risk)</p>
+          </div>
+
+          <div class="card" data-admin id="admin-risk-panel">
             <div class="card-header">
               <span class="card-title">High-Risk Riders</span>
               <span class="card-badge" style="background:rgba(255,77,106,0.1);color:var(--red);border-color:rgba(255,77,106,0.2);">LIVE</span>
@@ -374,9 +362,9 @@
 
           <div>
             <div class="price-display">
-              <div class="price-label">Daily Premium</div>
+              <div class="price-label">Weekly Premium</div>
               <div class="price-val" id="calc-price">₹18.40</div>
-              <div class="price-unit">per rider · per day</div>
+              <div class="price-unit">per rider · per week</div>
               <div style="margin-top:16px;display:flex;gap:12px;justify-content:center;">
                 <div style="text-align:center;">
                   <div style="font-size:20px;font-weight:700;color:var(--text);font-family:'Syne',sans-serif" id="calc-monthly">₹552</div>
@@ -390,7 +378,7 @@
               </div>
             </div>
 
-            <div class="card card-sm">
+            <div class="card card-sm" data-admin id="admin-risk-panel">
               <div class="card-title" style="margin-bottom:14px;">Risk Score</div>
               <div class="risk-meter">
                 <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
@@ -415,6 +403,16 @@
             </div>
 
             <button class="btn-primary" style="margin-top:12px;" onclick="showSection('policy')">Generate Policy →</button>
+
+            <div class="card" id="driver-summary" style="margin-top:16px;">
+              <h3>Your Insurance Summary</h3>
+              <div style="margin-top:16px; display:flex; flex-direction:column; gap:10px;">
+                <div>🛡️ Active Policies: <b id="myPolicies">0</b></div>
+                <div>⚠️ Claims Made: <b id="myClaims">0</b></div>
+                <div>💰 Total Payout: <b id="myPayout">₹0</b></div>
+                <div>📊 Risk Level: <b id="myRisk">Low</b></div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -427,7 +425,7 @@
             <div class="card" style="margin-bottom:16px;">
               <div class="card-title" style="margin-bottom:20px;">Select Coverage Plan</div>
               <div class="plan-cards">
-                <div class="plan-card" id="plan-basic" onclick="selectPlan('basic')">
+                <div class="plan-card" id="plan-basic" data-plan="basic" data-price="8" onclick="selectPlan('basic')">
                   <div class="plan-name">Basic</div>
                   <div class="plan-price">₹8</div>
                   <div class="plan-period">per rider / day</div>
@@ -435,7 +433,7 @@
                   <div class="plan-feat">Rain trigger payout</div>
                   <div class="plan-feat">UPI instant transfer</div>
                 </div>
-                <div class="plan-card selected" id="plan-standard" onclick="selectPlan('standard')">
+                <div class="plan-card selected" id="plan-standard" data-plan="standard" data-price="18" onclick="selectPlan('standard')">
                   <div style="font-size:10px;color:var(--teal);font-weight:700;letter-spacing:0.08em;margin-bottom:8px;text-transform:uppercase;">Most Popular</div>
                   <div class="plan-name">Standard</div>
                   <div class="plan-price">₹18</div>
@@ -445,7 +443,7 @@
                   <div class="plan-feat">Hospital cashback</div>
                   <div class="plan-feat">Night shift bonus</div>
                 </div>
-                <div class="plan-card" id="plan-premium" onclick="selectPlan('premium')">
+                <div class="plan-card" id="plan-premium" data-plan="premium" data-price="34" onclick="selectPlan('premium')">
                   <div class="plan-name">Premium</div>
                   <div class="plan-price">₹34</div>
                   <div class="plan-period">per rider / day</div>
@@ -461,12 +459,12 @@
             <div class="card">
               <div class="card-title" style="margin-bottom:20px;">Policy Details</div>
               <div class="form-row" style="margin-bottom:0;">
-                <div><label class="form-label">Rider ID</label><input class="form-input" value="R-54821" /></div>
-                <div><label class="form-label">Full Name</label><input class="form-input" value="Priya Sharma" /></div>
+                <div><label class="form-label">Rider ID</label><input class="form-input" id="formRiderId" value="R-54821" /></div>
+                <div><label class="form-label">Full Name</label><input class="form-input" id="formFullName" value="Priya Sharma" /></div>
               </div>
               <div class="form-row" style="margin-bottom:0;">
-                <div><label class="form-label">Phone</label><input class="form-input" value="+91 98765 43210" /></div>
-                <div><label class="form-label">Aadhaar (last 4)</label><input class="form-input" value="7821" /></div>
+                <div><label class="form-label">Phone</label><input class="form-input" id="formPhone" value="+91 98765 43210" /></div>
+                <div><label class="form-label">Aadhaar (last 4)</label><input class="form-input" id="formAadhaar" value="7821" /></div>
               </div>
               <div class="form-row" style="margin-bottom:0;">
                 <div><label class="form-label">City Zone</label>
@@ -483,12 +481,12 @@
                 </div>
               </div>
               <label class="form-label">UPI ID for Payouts</label>
-              <input class="form-input" value="priya.sharma@upi" />
-              <button class="btn-primary" style="margin-top:4px;">Issue Policy →</button>
+              <input class="form-input" id="formUPI" value="priya.sharma@upi" />
+              <button class="btn-primary" style="margin-top:4px;" onclick="createPolicy()">Create Policy</button>
             </div>
           </div>
 
-          <div class="card">
+          <div class="card" data-admin id="admin-policies-panel">
             <div class="card-header"><span class="card-title">Active Policies</span><span class="card-badge">4 total</span></div>
             <div class="policy-row">
               <div class="policy-icon teal">🛡️</div>
@@ -527,6 +525,30 @@
               <canvas id="policyDoughnut" style="max-height:160px;"></canvas>
             </div>
           </div>
+
+          <div class="card" id="driver-policy-panel" data-driver>
+            <h3>Your Policy</h3>
+
+            <div style="margin-top:16px; display:flex; flex-direction:column; gap:12px;">
+
+              <div>
+                🛡️ Plan: <b id="myPlan">Standard</b>
+              </div>
+
+              <div>
+                💰 Premium: ₹<b id="myPremium">0</b>
+              </div>
+
+              <div>
+                📅 Created: <b id="myDate">-</b>
+              </div>
+
+              <div>
+                📍 Status: <span style="color:#22c55e;">Active</span>
+              </div>
+
+            </div>
+          </div>
         </div>
       </section>
 
@@ -534,19 +556,13 @@
       <section id="section-triggers" style="display:none;">
         <div class="section-title">Trigger <span>System</span></div>
 
-        <div class="alert-banner red">
-          <span style="font-size:18px;">🌀</span>
-          <div><strong>CYCLONE WATCH ACTIVE</strong> — Odisha coast · 3,812 riders pre-flagged · Auto-payout armed at Cat-2+</div>
-          <button style="margin-left:auto;background:var(--red);border:none;color:#fff;padding:5px 12px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">Manage</button>
+        <div id="triggerCards"></div>
+
+        <div style="margin-bottom:16px;">
+          <button class="btn-primary" onclick="simulateEvent()">Simulate Risk</button>
         </div>
-        <div class="alert-banner amber" style="margin-top:0;">
-          <span style="font-size:18px;">🌧️</span>
-          <div><strong>RAIN THRESHOLD CROSSED</strong> — Mumbai West · Rainfall 68mm/hr · 1,240 riders eligible for ₹200 top-up</div>
-        </div>
-        <div class="alert-banner teal" style="margin-top:0;margin-bottom:20px;">
-          <span style="font-size:18px;">✓</span>
-          <div><strong>AQI TRIGGER RESOLVED</strong> — Delhi NCR · AQI normalized below 150 · Payout window closed</div>
-        </div>
+
+        <div id="triggerMessage"></div>
 
         <div class="trigger-grid">
           <div class="trigger-card armed">
@@ -679,25 +695,27 @@
             <div class="claim-detail-card">
               <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:600;margin-bottom:16px;">Claim Details</div>
               <div class="claim-row"><span class="claim-key">Claim ID</span><span class="claim-val">#C-7821</span></div>
-              <div class="claim-row"><span class="claim-key">Rider</span><span class="claim-val">Mohan Raju (#R-44821)</span></div>
+              <div class="claim-row"><span class="claim-key">Rider</span><span class="claim-val" id="claimRider">Loading...</span></div>
               <div class="claim-row"><span class="claim-key">Trigger Event</span><span class="claim-val" style="color:var(--amber);">Heavy Rain — 72mm/hr</span></div>
               <div class="claim-row"><span class="claim-key">Zone</span><span class="claim-val">Mumbai West Zone 3</span></div>
               <div class="claim-row"><span class="claim-key">Policy Plan</span><span class="claim-val">Standard (#P-8821)</span></div>
               <div class="claim-row"><span class="claim-key">Trigger Time</span><span class="claim-val">14 Apr 2025, 11:40 AM</span></div>
               <div class="claim-row"><span class="claim-key">Processing Started</span><span class="claim-val">14 Apr 2025, 11:41 AM</span></div>
-              <div class="claim-row"><span class="claim-key">UPI Handle</span><span class="claim-val">mohan.raju@paytm</span></div>
+              <div class="claim-row"><span class="claim-key">UPI Handle</span><span class="claim-val" id="claimUPI">Loading...</span></div>
             </div>
 
             <div class="card">
-              <div class="card-title" style="margin-bottom:16px;">Recent Claims</div>
+              <div class="card-title" style="margin-bottom:16px;">My Claims</div>
               <table class="data-table">
-                <thead><tr><th>Claim ID</th><th>Rider</th><th>Trigger</th><th>Amount</th><th>Status</th></tr></thead>
-                <tbody>
-                  <tr><td>#C-7821</td><td>Mohan R.</td><td>Rain</td><td>₹2,400</td><td><span class="table-status status-pending">Processing</span></td></tr>
-                  <tr><td>#C-7820</td><td>Arjun K.</td><td>AQI</td><td>₹1,800</td><td><span class="table-status status-paid">Paid</span></td></tr>
-                  <tr><td>#C-7819</td><td>Sunil M.</td><td>Rain</td><td>₹2,400</td><td><span class="table-status status-paid">Paid</span></td></tr>
-                  <tr><td>#C-7818</td><td>Priya S.</td><td>Rain</td><td>₹2,400</td><td><span class="table-status status-paid">Paid</span></td></tr>
-                </tbody>
+                <thead>
+                  <tr>
+                    <th>Claim ID</th>
+                    <th>Event</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="myClaimsTable"></tbody>
               </table>
             </div>
           </div>

@@ -1,14 +1,15 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory, render_template_string
 import mysql.connector
 from flask_cors import CORS
 import requests
+import os
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='', static_folder='../') # serve files from parent directory
 CORS(app)
 
 API_KEY = "047b8248ef625a2e3ff7e6902949dca9"
-app.run(host='0.0.0.0', port=5000, debug=True)
+
 # DB connection
 def get_db():
     return mysql.connector.connect(
@@ -255,6 +256,6 @@ def risk():
 
 @app.route('/')
 def home():
-    return "GigGuardian Backend Running 🚀"
+    return send_from_directory('../', 'index.html')
 if __name__ == '__main__':
     app.run(debug=True)
