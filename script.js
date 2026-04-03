@@ -1,7 +1,6 @@
 
 // ---- API CONFIG ----
-const META_API_BASE_URL = document.querySelector('meta[name="api-base-url"]')?.content?.trim();
-const BASE_URL = (window.API_BASE_URL || META_API_BASE_URL || window.location.origin).replace(/\/$/, "");
+const BASE_URL = "https://gigguardian-ai.onrender.com/";
 
 // ---- LOGIN ----
 function toggleLoginTab(i) {
