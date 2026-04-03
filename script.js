@@ -150,18 +150,15 @@ let selectedPlan = "standard"; // default
 let selectedPremium = 18;
 
 function selectPlan(plan) {
-  // remove highlight from all
   document.querySelectorAll(".plan-card").forEach(c => c.classList.remove("selected"));
 
-  // highlight selected
-  document.getElementById(`plan-${plan}`).classList.add("selected");
-
-  // get values from data attributes
   const card = document.getElementById(`plan-${plan}`);
+  card.classList.add("selected");
+
   selectedPlan = card.dataset.plan;
   selectedPremium = card.dataset.price;
 
-  console.log("Selected Plan:", selectedPlan, "Premium:", selectedPremium);
+  console.log("Selected:", selectedPlan, selectedPremium); // DEBUG
 }
 
 async function createPolicy() {
@@ -619,11 +616,6 @@ async function getRisk() {
 }
 setTimeout(updateCalc, 100);
 
-// ---- PLAN SELECT ----
-function selectPlan(p) {
-  ['basic','standard','premium'].forEach(n => document.getElementById('plan-'+n).classList.toggle('selected', n===p));
-}
-
 // ---- DB TABS ----
 function switchDbTab(el, tab) {
   document.querySelectorAll('.db-tab-btn').forEach(b => b.classList.remove('active'));
@@ -639,12 +631,13 @@ async function loadGraph() {
   try {
     const res = await fetch(`${BASE_URL}/stats/monthly`);
     const data = await res.json();
-    console.log(data);
     renderGraph(data);
   } catch (error) {
     console.error('Error loading graph data:', error);
   }
 }
+
+let monthlyLineChart = null;
 
 function renderGraph(data) {
   const labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -667,7 +660,15 @@ function renderGraph(data) {
 
   const ctx = document.getElementById("chart");
   if (ctx) {
-    new Chart(ctx, {
+    if (monthlyLineChart) {
+      monthlyLineChart.data.labels = labels;
+      monthlyLineChart.data.datasets[0].data = premiumData;
+      monthlyLineChart.data.datasets[1].data = payoutData;
+      monthlyLineChart.update();
+      return;
+    }
+
+    monthlyLineChart = new Chart(ctx, {
       type: "line",
       data: {
         labels: labels,
@@ -718,55 +719,135 @@ function renderGraph(data) {
 
 // ---- CHARTS ----
 let chartsInit = false;
-function initCharts() {
-  if(chartsInit) return; chartsInit = true;
+let monthlyBarChart = null;
+let policyDoughnutChart = null;
+
+async function loadHeatmapFromClaims() {
+  const hm = document.getElementById('heatmap');
+  if (!hm) return;
+
+  const userId = localStorage.getItem('user_id');
+  if (!userId) return;
+
+  hm.innerHTML = '';
+
+  try {
+    const res = await fetch(`${BASE_URL}/my-claims?user_id=${userId}`);
+    const claims = await res.json();
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const dayCounts = new Map();
+    (claims || []).forEach(claim => {
+      if (!claim.created_at) return;
+      const d = new Date(claim.created_at);
+      d.setHours(0, 0, 0, 0);
+      const key = d.toISOString().slice(0, 10);
+      dayCounts.set(key, (dayCounts.get(key) || 0) + 1);
+    });
+
+    for (let i = 55; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      const key = d.toISOString().slice(0, 10);
+      const count = dayCounts.get(key) || 0;
+
+      const c = document.createElement('div');
+      c.className = 'heatmap-cell';
+
+      const alpha = count === 0 ? 0.08 : count === 1 ? 0.25 : count === 2 ? 0.55 : 1;
+      c.style.background = `rgba(0,210,170,${alpha})`;
+      c.title = `${key}: ${count} claims`;
+      hm.appendChild(c);
+    }
+  } catch (error) {
+    console.error('Error loading heatmap data:', error);
+  }
+}
+
+async function initCharts() {
+  chartsInit = true;
+
+  let stats = { premiums: [], payouts: [] };
+  try {
+    const res = await fetch(`${BASE_URL}/stats/monthly`);
+    stats = await res.json();
+  } catch (error) {
+    console.error('Error loading bar chart data:', error);
+  }
+
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const monthlyPremiums = Array(12).fill(0);
+  const monthlyPayouts = Array(12).fill(0);
+
+  (stats.premiums || []).forEach(item => {
+    if (item.month) monthlyPremiums[item.month - 1] = item.total || 0;
+  });
+
+  (stats.payouts || []).forEach(item => {
+    if (item.month) monthlyPayouts[item.month - 1] = item.total || 0;
+  });
+
+  const labels = monthNames.slice(-8);
+  const payouts = monthlyPayouts.slice(-8);
+  const premiums = monthlyPremiums.slice(-8);
 
   // Bar chart
   const ctx = document.getElementById('barChart');
-  if(ctx) new Chart(ctx, {
-    type:'bar',
-    data:{
-      labels:['Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr'],
-      datasets:[
-        { label:'Payouts (₹L)', data:[18,22,19,31,26,24,28,34], backgroundColor:'rgba(0,210,170,0.6)', borderRadius:6, borderSkipped:false },
-        { label:'Premiums (₹L)', data:[42,44,46,50,48,52,56,59], backgroundColor:'rgba(77,158,255,0.3)', borderRadius:6, borderSkipped:false }
-      ]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:true,
-      plugins:{ legend:{ labels:{ color:'#6B7A8D', font:{ family:'DM Sans', size:11 } } } },
-      scales:{
-        x:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#6B7A8D', font:{family:'DM Sans',size:11} } },
-        y:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#6B7A8D', font:{family:'DM Sans',size:11} } }
-      }
+  if (ctx) {
+    if (monthlyBarChart) {
+      monthlyBarChart.data.labels = labels;
+      monthlyBarChart.data.datasets[0].data = payouts;
+      monthlyBarChart.data.datasets[1].data = premiums;
+      monthlyBarChart.update();
+    } else {
+      monthlyBarChart = new Chart(ctx, {
+        type:'bar',
+        data:{
+          labels,
+          datasets:[
+            { label:'Payouts (₹)', data:payouts, backgroundColor:'rgba(0,210,170,0.6)', borderRadius:6, borderSkipped:false },
+            { label:'Premiums (₹)', data:premiums, backgroundColor:'rgba(77,158,255,0.3)', borderRadius:6, borderSkipped:false }
+          ]
+        },
+        options:{
+          responsive:true, maintainAspectRatio:true,
+          plugins:{ legend:{ labels:{ color:'#6B7A8D', font:{ family:'DM Sans', size:11 } } } },
+          scales:{
+            x:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#6B7A8D', font:{family:'DM Sans',size:11} } },
+            y:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#6B7A8D', font:{family:'DM Sans',size:11} } }
+          }
+        }
+      });
     }
-  });
-
-  // Heatmap
-  const hm = document.getElementById('heatmap');
-  if(hm) {
-    const vals = Array.from({length:56}, () => Math.random());
-    vals.forEach(v => {
-      const c = document.createElement('div');
-      c.className = 'heatmap-cell';
-      const a = v < 0.25 ? 0.08 : v < 0.5 ? 0.25 : v < 0.75 ? 0.55 : 1;
-      c.style.background = `rgba(0,210,170,${a})`;
-      c.title = `${Math.round(v*50)} claims`;
-      hm.appendChild(c);
-    });
   }
+
+  await loadHeatmapFromClaims();
 
   // Policy doughnut
   const pc = document.getElementById('policyDoughnut');
-  if(pc) new Chart(pc, {
-    type:'doughnut',
-    data:{
-      labels:['Basic','Standard','Premium'],
-      datasets:[{ data:[1,2,1], backgroundColor:['rgba(0,210,170,0.4)','rgba(77,158,255,0.4)','rgba(168,85,247,0.4)'], borderColor:['#00D2AA','#4D9EFF','#A855F7'], borderWidth:1.5 }]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:true, cutout:'68%',
-      plugins:{ legend:{ labels:{ color:'#6B7A8D', font:{ family:'DM Sans', size:11 }, padding:12 } } }
-    }
-  });
+  if (pc && !policyDoughnutChart) {
+    policyDoughnutChart = new Chart(pc, {
+      type:'doughnut',
+      data:{
+        labels:['Basic','Standard','Premium'],
+        datasets:[{ data:[1,2,1], backgroundColor:['rgba(0,210,170,0.4)','rgba(77,158,255,0.4)','rgba(168,85,247,0.4)'], borderColor:['#00D2AA','#4D9EFF','#A855F7'], borderWidth:1.5 }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:true, cutout:'68%',
+        plugins:{ legend:{ labels:{ color:'#6B7A8D', font:{ family:'DM Sans', size:11 }, padding:12 } } }
+      }
+    });
+  }
 }
+
+setInterval(() => {
+  const userId = localStorage.getItem("user_id");
+  const role = localStorage.getItem("user_role");
+  if (!userId || !role) return;
+
+  loadDashboard();
+  loadMyActivity();
+  loadGraph();
+}, 10000);

@@ -1,26 +1,25 @@
-CREATE DATABASE gigguardian;
+create extension if not exists "uuid-ossp";
 
-USE gigguardian;
-
-CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100),
-    email VARCHAR(100) UNIQUE,
-    password VARCHAR(100)
+create table users (
+  id uuid primary key default uuid_generate_v4(),
+  name text,
+  email text unique,
+  password text,
+  role text default 'driver'
 );
 
-CREATE TABLE policies (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    plan VARCHAR(50),
-    premium FLOAT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+create table policies (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid references users(id),
+  plan text,
+  premium float,
+  created_at timestamp default now()
 );
 
-CREATE TABLE claims (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    amount FLOAT,
-    status VARCHAR(50),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+create table claims (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid references users(id),
+  amount float,
+  status text,
+  created_at timestamp default now()
 );
