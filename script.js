@@ -1,4 +1,8 @@
 
+// ---- API CONFIG ----
+const META_API_BASE_URL = document.querySelector('meta[name="api-base-url"]')?.content?.trim();
+const BASE_URL = (window.API_BASE_URL || META_API_BASE_URL || window.location.origin).replace(/\/$/, "");
+
 // ---- LOGIN ----
 function toggleLoginTab(i) {
   document.getElementById('lt1').classList.toggle('active', i===0);
@@ -67,7 +71,7 @@ async function loginUser() {
   const password = document.querySelector("#login-form input[type=password]").value;
 
   try {
-    const res = await fetch("http://127.0.0.1:5000/login", {
+      const res = await fetch(`${BASE_URL}/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -107,7 +111,7 @@ async function registerUser() {
   const password = document.querySelector("#register-form input[type=password]").value;
 
   try {
-    const res = await fetch("http://127.0.0.1:5000/register", {
+    const res = await fetch(`${BASE_URL}/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -149,7 +153,7 @@ function selectPlan(plan) {
 async function createPolicy() {
   const userId = localStorage.getItem("user_id");
 
-  await fetch("http://127.0.0.1:5000/create-policy", {
+  await fetch(`${BASE_URL}/create-policy`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -203,7 +207,7 @@ function showAlert(event) {
 async function triggerClaim(amount) {
   const userId = localStorage.getItem("user_id");
 
-  await fetch("http://127.0.0.1:5000/auto-claim", {
+  await fetch(`${BASE_URL}/auto-claim`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -237,7 +241,7 @@ async function loadDashboard() {
   const role = localStorage.getItem("user_role");
 
   const res = await fetch(
-    `http://127.0.0.1:5000/dashboard?user_id=${userId}&role=${role}`
+    `${BASE_URL}/dashboard?user_id=${userId}&role=${role}`
   );
 
   const data = await res.json();
@@ -265,7 +269,7 @@ async function loadMyPolicy() {
   const userId = localStorage.getItem("user_id");
 
   const res = await fetch(
-    `http://127.0.0.1:5000/my-policy?user_id=${userId}`
+    `${BASE_URL}/my-policy?user_id=${userId}`
   );
 
   const data = await res.json();
@@ -282,7 +286,7 @@ async function loadMyPolicy() {
 async function loadMyActivity() {
   const userId = localStorage.getItem("user_id");
 
-  const res = await fetch(`http://127.0.0.1:5000/my-activity?user_id=${userId}`);
+  const res = await fetch(`${BASE_URL}/my-activity?user_id=${userId}`);
   const data = await res.json();
 
   const container = document.getElementById("activityList");
@@ -304,7 +308,7 @@ async function loadMyActivity() {
 async function loadMyClaims() {
   const userId = localStorage.getItem("user_id");
 
-  const res = await fetch(`http://127.0.0.1:5000/my-claims?user_id=${userId}`);
+  const res = await fetch(`${BASE_URL}/my-claims?user_id=${userId}`);
   const data = await res.json();
 
   const table = document.getElementById("myClaimsTable");
@@ -440,7 +444,7 @@ let score = 80;
 let alertShown = false;
 
 async function checkTrigger() {
-  const res = await fetch("http://127.0.0.1:5000/trigger?city=Mumbai");
+  const res = await fetch(`${BASE_URL}/trigger?city=Mumbai`);
   const data = await res.json();
 
   const role = localStorage.getItem("user_role");
@@ -548,7 +552,7 @@ function getRiskInfo(event) {
 }
 
 async function loadTriggers() {
-  const res = await fetch("http://127.0.0.1:5000/trigger?city=Mumbai");
+  const res = await fetch(`${BASE_URL}/trigger?city=Mumbai`);
   const data = await res.json();
 
   const container = document.getElementById("triggerCards");
@@ -574,7 +578,7 @@ setInterval(loadTriggers, 10000);
 
 // ---- FRAUD DETECTION ----
 async function checkFraud() {
-  const res = await fetch("http://127.0.0.1:5000/check-fraud", {
+  const res = await fetch(`${BASE_URL}/check-fraud`, {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({ claims_today: 4 })
@@ -594,7 +598,7 @@ function falseAlarm() {
 
 // ---- AI RISK SCORE ----
 async function getRisk() {
-  const res = await fetch("http://127.0.0.1:5000/risk");
+  const res = await fetch(`${BASE_URL}/risk`);
   const data = await res.json();
 
   document.getElementById("riskScore").innerText = data.score;
@@ -618,7 +622,6 @@ function switchDbTab(el, tab) {
 
 // ---- MONTHLY STATISTICS ----
 async function loadGraph() {
-  const BASE_URL = 'http://localhost:5000';
   try {
     const res = await fetch(`${BASE_URL}/stats/monthly`);
     const data = await res.json();

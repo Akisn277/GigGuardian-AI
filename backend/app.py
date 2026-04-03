@@ -6,17 +6,18 @@ import os
 
 
 app = Flask(__name__, static_url_path='', static_folder='../') # serve files from parent directory
-CORS(app)
+CORS(app, supports_credentials=True)
 
 API_KEY = "047b8248ef625a2e3ff7e6902949dca9"
 
 # DB connection
 def get_db():
     return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="Akisn277",
-        database="gigguardian"
+        host=os.getenv("DB_HOST", "localhost"),
+        user=os.getenv("DB_USER", "root"),
+        password=os.getenv("DB_PASSWORD", "Akisn277"),
+        database=os.getenv("DB_NAME", "gigguardian"),
+        port=int(os.getenv("DB_PORT", "3306"))
     )
 
 # ---------------- LOGIN ----------------
@@ -285,4 +286,8 @@ def monthly_stats():
 def home():
     return send_from_directory('../', 'index.html')
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(
+        host='0.0.0.0',
+        port=int(os.getenv('PORT', '5000')),
+        debug=os.getenv('FLASK_DEBUG', 'false').lower() == 'true'
+    )
