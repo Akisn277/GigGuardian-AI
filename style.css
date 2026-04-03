@@ -69,6 +69,57 @@
     font-size:13px; font-weight:700; color:#fff; cursor:pointer;
   }
 
+  /* Hide hamburger on desktop */
+  .hamburger {
+    display: none;
+    font-size: 24px;
+    cursor: pointer;
+  }
+
+  /* Overlay (blur background) */
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(6px);
+    background: rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.3s;
+    z-index: 999;
+  }
+
+  /* Active overlay */
+  .overlay.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* Sidebar default hidden */
+  .mobile-sidebar {
+    position: fixed;
+    top: 0;
+    left: -250px;
+    width: 250px;
+    height: 100%;
+    background: #0b1220;
+    padding: 20px;
+    transition: 0.3s;
+    z-index: 1000;
+    box-shadow: 4px 0 20px rgba(0, 255, 200, 0.1);
+  }
+
+  .mobile-sidebar.active {
+    left: 0;
+  }
+
+  .mobile-sidebar div {
+    margin: 15px 0;
+    cursor: pointer;
+  }
+
   /* PAGES */
   .page { display:none; padding-top:60px; min-height:100vh; }
   .page.active { display:block; }
@@ -583,10 +634,6 @@
     padding: 0 12px;
   }
 
-  .nav-tabs {
-    display: none;
-  }
-
   /* MAIN LAYOUT */
   .main-layout {
     flex-direction: column;
@@ -658,5 +705,16 @@
   .login-box {
     width: 100%;
     max-width: 100%;
+  }
+}
+
+/* Mobile view */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+  }
+
+  .hamburger {
+    display: block;
   }
 }

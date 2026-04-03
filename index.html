@@ -22,7 +22,8 @@
     </svg>
     GigGuardian AI
   </div>
-  <div class="nav-tabs">
+  <div class="hamburger" onclick="toggleSidebar()">☰</div>
+  <div class="nav-tabs nav-links" id="navLinks">
     <button class="nav-tab active" data-section="dashboard" onclick="showSection('dashboard')">Dashboard</button>
     <button class="nav-tab" data-section="calculator" onclick="showSection('calculator')">Calculator</button>
     <button class="nav-tab" data-section="policy" onclick="showSection('policy')">Policies</button>
@@ -38,6 +39,16 @@
     </div>
     <div class="nav-avatar">RJ</div>    <button class="btn-logout" onclick="logout()" style="margin-left:12px; padding:6px 10px; background:#ef5f4d; color:#fff; border:none; border-radius:8px; font-size:12px; cursor:pointer;">Logout</button>  </div>
 </nav>
+
+<div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
+
+<div id="mobileSidebar" class="mobile-sidebar">
+  <div onclick="showSection('dashboard')">Dashboard</div>
+  <div onclick="showSection('calculator')">Premium Calc</div>
+  <div onclick="showSection('policy')">Policy Creation</div>
+  <div onclick="showSection('triggers')">Trigger System</div>
+  <div onclick="showSection('claims')">Claims</div>
+</div>
 
 <!-- ALERT BOX -->
 <div id="alertBox" class="alert-box hidden">

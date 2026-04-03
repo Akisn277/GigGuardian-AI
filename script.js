@@ -338,6 +338,14 @@ async function loadMyClaims() {
 }
 
 // ---- SECTIONS ----
+function toggleSidebar() {
+  const sidebar = document.getElementById("mobileSidebar");
+  const overlay = document.getElementById("overlay");
+
+  sidebar.classList.toggle("active");
+  overlay.classList.toggle("active");
+}
+
 function showSection(section) {
   // hide all sections
   document.querySelectorAll("main section").forEach(sec => {
@@ -376,6 +384,9 @@ function showSection(section) {
     loadGraph();
     initCharts();
   }
+
+  document.getElementById("mobileSidebar").classList.remove("active");
+  document.getElementById("overlay").classList.remove("active");
 }
 
 function logout() {
