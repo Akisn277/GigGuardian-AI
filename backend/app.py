@@ -3,6 +3,7 @@ import mysql.connector
 from flask_cors import CORS
 import requests
 import os
+from urllib.parse import urlparse
 
 
 app = Flask(__name__, static_url_path='', static_folder='../') # serve files from parent directory
@@ -12,6 +13,18 @@ API_KEY = "047b8248ef625a2e3ff7e6902949dca9"
 
 # DB connection
 def get_db():
+    database_url = os.getenv("DATABASE_URL")
+
+    if database_url:
+        parsed = urlparse(database_url)
+        return mysql.connector.connect(
+            host=parsed.hostname,
+            user=parsed.username,
+            password=parsed.password,
+            database=(parsed.path or "").lstrip("/"),
+            port=parsed.port or 3306
+        )
+
     return mysql.connector.connect(
         host=os.getenv("DB_HOST", "localhost"),
         user=os.getenv("DB_USER", "root"),
@@ -23,28 +36,36 @@ def get_db():
 # ---------------- LOGIN ----------------
 @app.route('/login', methods=['POST'])
 def login():
-    data = request.json
-    db = get_db()
-    cursor = db.cursor(dictionary=True)
+    try:
+        data = request.json or {}
 
-    cursor.execute(
-        "SELECT * FROM users WHERE email=%s AND password=%s",
-        (data['email'], data['password'])
-    )
+        if not data.get('email') or not data.get('password'):
+            return jsonify({"success": False, "message": "Email and password are required"}), 400
 
-    user = cursor.fetchone()
+        db = get_db()
+        cursor = db.cursor(dictionary=True)
 
-    if user:
-        return jsonify({
-            "success": True,
-            "user": {
-                "id": user["id"],
-                "name": user["name"],
-                "role": user["role"]
-            }
-        })
-    else:
-        return jsonify({"success": False})
+        cursor.execute(
+            "SELECT * FROM users WHERE email=%s AND password=%s",
+            (data['email'], data['password'])
+        )
+
+        user = cursor.fetchone()
+
+        if user:
+            return jsonify({
+                "success": True,
+                "user": {
+                    "id": user["id"],
+                    "name": user["name"],
+                    "role": user["role"]
+                }
+            })
+
+        return jsonify({"success": False, "message": "Invalid credentials"}), 401
+    except Exception as e:
+        print("Login error:", str(e))
+        return jsonify({"success": False, "message": "Backend login error", "detail": str(e)}), 500
 
 # ---------------- REGISTER ----------------
 @app.route('/register', methods=['POST'])

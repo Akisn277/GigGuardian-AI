@@ -69,9 +69,10 @@ function populateFormWithCredentials() {
 async function loginUser() {
   const email = document.querySelector("#login-form input[type=email]").value;
   const password = document.querySelector("#login-form input[type=password]").value;
+  const loginUrl = `${BASE_URL}/login`;
 
   try {
-      const res = await fetch(`${BASE_URL}/login`, {
+      const res = await fetch(loginUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -80,6 +81,12 @@ async function loginUser() {
     });
 
     const data = await res.json();
+
+    if (!res.ok) {
+      const msg = data?.message || `Login failed (${res.status})`;
+      alert(`${msg}\nAPI: ${loginUrl}`);
+      return;
+    }
 
     if (data.success) {
       localStorage.setItem("user_id", data.user.id);
@@ -96,12 +103,12 @@ async function loginUser() {
       loadTriggers();
       populateFormWithCredentials();
     } else {
-      alert("Invalid credentials");
+      alert(data?.message || "Invalid credentials");
     }
 
   } catch (err) {
     console.error(err);
-    alert("Server error");
+    alert(`Server error while connecting to ${loginUrl}`);
   }
 }
 
@@ -109,9 +116,10 @@ async function registerUser() {
   const name = document.querySelector("#register-form input[placeholder='Name']").value;
   const email = document.querySelector("#register-form input[type=email]").value;
   const password = document.querySelector("#register-form input[type=password]").value;
+  const registerUrl = `${BASE_URL}/register`;
 
   try {
-    const res = await fetch(`${BASE_URL}/register`, {
+    const res = await fetch(registerUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -121,13 +129,19 @@ async function registerUser() {
 
     const data = await res.json();
 
+    if (!res.ok) {
+      const msg = data?.message || `Registration failed (${res.status})`;
+      alert(`${msg}\nAPI: ${registerUrl}`);
+      return;
+    }
+
     if (data.success) {
       alert("Registered successfully!");
       toggleLoginTab(0);
     }
   } catch (err) {
     console.error(err);
-    alert("Server error");
+    alert(`Server error while connecting to ${registerUrl}`);
   }
 }
 
